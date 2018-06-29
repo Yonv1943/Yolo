@@ -2,7 +2,6 @@ import multiprocessing as mp
 import cv2
 import numpy as np
 
-
 '''Yonv1943 2018-06-03 1539'''
 """Yonv1943 2018-06-08 1142 stable"""
 
@@ -128,19 +127,15 @@ def run():
 
     queue_img_l = [mp.Queue(maxsize=2) for _ in G.camera_ip_l]
 
-    process_io_2dl = [
-        [mp.Process(target=queue_img_put, args=(q, G.user_name, G.user_pwd, camera_ip)),
-         mp.Process(target=queue_img_get, args=(q, camera_ip))]
-        for (q, camera_ip) in zip(queue_img_l, G.camera_ip_l)
-    ]
+    processes = []
+    processes.extend([mp.Process(target=queue_img_put, args=(q, G.user_name, G.user_pwd, camera_ip))
+                      for (q, camera_ip) in zip(queue_img_l, G.camera_ip_l)])
+    processes.extend([mp.Process(target=queue_img_get, args=(q, camera_ip))
+                      for (q, camera_ip) in zip(queue_img_l, G.camera_ip_l)])
 
-    for process_l in process_io_2dl:
-        for process in process_l:
-            process.daemon = True
-            process.start()
-    for process_l in process_io_2dl:
-        for process in process_l:
-            process.join()
+    [setattr(process, "daemon", True) for process in processes]
+    [process.start() for process in processes]
+    [process.join() for process in processes]
 
 
 if __name__ == '__main__':
