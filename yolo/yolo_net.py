@@ -2,22 +2,23 @@ import numpy as np
 import tensorflow as tf
 import yolo.config as cfg
 
+slim = tf.contrib.slim
+
 
 class YOLONet(object):
-    def __init__(self, is_training=True):
-        self.slim = tf.contrib.slim
 
+    def __init__(self, is_training=True):
         self.classes = cfg.CLASSES
         self.num_class = len(self.classes)
         self.image_size = cfg.IMAGE_SIZE
         self.cell_size = cfg.CELL_SIZE
         self.boxes_per_cell = cfg.BOXES_PER_CELL
-        self.output_size = (self.cell_size * self.cell_size) * \
-                           (self.num_class + self.boxes_per_cell * 5)
+        self.output_size = (self.cell_size * self.cell_size) *\
+            (self.num_class + self.boxes_per_cell * 5)
         self.scale = 1.0 * self.image_size / self.cell_size
         self.boundary1 = self.cell_size * self.cell_size * self.num_class
-        self.boundary2 = self.boundary1 + \
-                         self.cell_size * self.cell_size * self.boxes_per_cell
+        self.boundary2 = self.boundary1 +\
+            self.cell_size * self.cell_size * self.boxes_per_cell
 
         self.object_scale = cfg.OBJECT_SCALE
         self.noobject_scale = cfg.NOOBJECT_SCALE
@@ -55,56 +56,56 @@ class YOLONet(object):
                       is_training=True,
                       scope='yolo'):
         with tf.variable_scope(scope):
-            with self.slim.arg_scope(
-                    [self.slim.conv2d, self.slim.fully_connected],
-                    activation_fn=leaky_relu(alpha),
-                    weights_regularizer=self.slim.l2_regularizer(0.0005),
-                    weights_initializer=tf.truncated_normal_initializer(0.0, 0.01)
+            with slim.arg_scope(
+                [slim.conv2d, slim.fully_connected],
+                activation_fn=leaky_relu(alpha),
+                weights_regularizer=slim.l2_regularizer(0.0005),
+                weights_initializer=tf.truncated_normal_initializer(0.0, 0.01)
             ):
                 net = tf.pad(
                     images, np.array([[0, 0], [3, 3], [3, 3], [0, 0]]),
                     name='pad_1')
-                net = self.slim.conv2d(
+                net = slim.conv2d(
                     net, 64, 7, 2, padding='VALID', scope='conv_2')
-                net = self.slim.max_pool2d(net, 2, padding='SAME', scope='pool_3')
-                net = self.slim.conv2d(net, 192, 3, scope='conv_4')
-                net = self.slim.max_pool2d(net, 2, padding='SAME', scope='pool_5')
-                net = self.slim.conv2d(net, 128, 1, scope='conv_6')
-                net = self.slim.conv2d(net, 256, 3, scope='conv_7')
-                net = self.slim.conv2d(net, 256, 1, scope='conv_8')
-                net = self.slim.conv2d(net, 512, 3, scope='conv_9')
-                net = self.slim.max_pool2d(net, 2, padding='SAME', scope='pool_10')
-                net = self.slim.conv2d(net, 256, 1, scope='conv_11')
-                net = self.slim.conv2d(net, 512, 3, scope='conv_12')
-                net = self.slim.conv2d(net, 256, 1, scope='conv_13')
-                net = self.slim.conv2d(net, 512, 3, scope='conv_14')
-                net = self.slim.conv2d(net, 256, 1, scope='conv_15')
-                net = self.slim.conv2d(net, 512, 3, scope='conv_16')
-                net = self.slim.conv2d(net, 256, 1, scope='conv_17')
-                net = self.slim.conv2d(net, 512, 3, scope='conv_18')
-                net = self.slim.conv2d(net, 512, 1, scope='conv_19')
-                net = self.slim.conv2d(net, 1024, 3, scope='conv_20')
-                net = self.slim.max_pool2d(net, 2, padding='SAME', scope='pool_21')
-                net = self.slim.conv2d(net, 512, 1, scope='conv_22')
-                net = self.slim.conv2d(net, 1024, 3, scope='conv_23')
-                net = self.slim.conv2d(net, 512, 1, scope='conv_24')
-                net = self.slim.conv2d(net, 1024, 3, scope='conv_25')
-                net = self.slim.conv2d(net, 1024, 3, scope='conv_26')
+                net = slim.max_pool2d(net, 2, padding='SAME', scope='pool_3')
+                net = slim.conv2d(net, 192, 3, scope='conv_4')
+                net = slim.max_pool2d(net, 2, padding='SAME', scope='pool_5')
+                net = slim.conv2d(net, 128, 1, scope='conv_6')
+                net = slim.conv2d(net, 256, 3, scope='conv_7')
+                net = slim.conv2d(net, 256, 1, scope='conv_8')
+                net = slim.conv2d(net, 512, 3, scope='conv_9')
+                net = slim.max_pool2d(net, 2, padding='SAME', scope='pool_10')
+                net = slim.conv2d(net, 256, 1, scope='conv_11')
+                net = slim.conv2d(net, 512, 3, scope='conv_12')
+                net = slim.conv2d(net, 256, 1, scope='conv_13')
+                net = slim.conv2d(net, 512, 3, scope='conv_14')
+                net = slim.conv2d(net, 256, 1, scope='conv_15')
+                net = slim.conv2d(net, 512, 3, scope='conv_16')
+                net = slim.conv2d(net, 256, 1, scope='conv_17')
+                net = slim.conv2d(net, 512, 3, scope='conv_18')
+                net = slim.conv2d(net, 512, 1, scope='conv_19')
+                net = slim.conv2d(net, 1024, 3, scope='conv_20')
+                net = slim.max_pool2d(net, 2, padding='SAME', scope='pool_21')
+                net = slim.conv2d(net, 512, 1, scope='conv_22')
+                net = slim.conv2d(net, 1024, 3, scope='conv_23')
+                net = slim.conv2d(net, 512, 1, scope='conv_24')
+                net = slim.conv2d(net, 1024, 3, scope='conv_25')
+                net = slim.conv2d(net, 1024, 3, scope='conv_26')
                 net = tf.pad(
                     net, np.array([[0, 0], [1, 1], [1, 1], [0, 0]]),
                     name='pad_27')
-                net = self.slim.conv2d(
+                net = slim.conv2d(
                     net, 1024, 3, 2, padding='VALID', scope='conv_28')
-                net = self.slim.conv2d(net, 1024, 3, scope='conv_29')
-                net = self.slim.conv2d(net, 1024, 3, scope='conv_30')
+                net = slim.conv2d(net, 1024, 3, scope='conv_29')
+                net = slim.conv2d(net, 1024, 3, scope='conv_30')
                 net = tf.transpose(net, [0, 3, 1, 2], name='trans_31')
-                net = self.slim.flatten(net, scope='flat_32')
-                net = self.slim.fully_connected(net, 512, scope='fc_33')
-                net = self.slim.fully_connected(net, 4096, scope='fc_34')
-                net = self.slim.dropout(
+                net = slim.flatten(net, scope='flat_32')
+                net = slim.fully_connected(net, 512, scope='fc_33')
+                net = slim.fully_connected(net, 4096, scope='fc_34')
+                net = slim.dropout(
                     net, keep_prob=keep_prob, is_training=is_training,
                     scope='dropout_35')
-                net = self.slim.fully_connected(
+                net = slim.fully_connected(
                     net, num_outputs, activation_fn=None, scope='fc_36')
         return net
 
@@ -241,5 +242,4 @@ class YOLONet(object):
 def leaky_relu(alpha):
     def op(inputs):
         return tf.nn.leaky_relu(inputs, alpha=alpha, name='leaky_relu')
-
     return op
